@@ -1,0 +1,81 @@
+Mục đích
+Rèn luyện kỹ năng cấu hình cấp quyền cho người dùng hoặc nhóm người dùng truy cập các tập tin trên hệ thống bằng việc sử dụng danh sách điều khiển truy cập ACL.
+
+Yêu cầu đối với sinh viên:
+Nắm được kiến thức về điều khiển truy cập trên Linux.
+
+Nội dung thực hành
+Khởi động lab:
+labtainer acl
+
+Sau khi khởi động bài lab, 3 thiết bị đầu cuối ảo sẽ được bật chế động login, hãy đăng nhập theo các tài khoản dưới đây:
+User
+
+Password
+
+bob
+
+password4bob
+
+alice
+
+password4alice
+
+harry
+
+password4harry
+
+Các nhiệm vụ
+Trong bài thực hành này, sinh viên sẽ sử dụng các lệnh getfacl và setfacl để xem và sửa đổi ACL trên tệp. Sử dụng tùy chọn -h để tìm hiểu về các lệnh này, ví dụ: getfacl -h.
+
+Nhiệm vụ 1: Xem lại các quyền trên các file hiện có
+
+Trên terminal “Alice”, hãy đến thư mục /shared data và liệt kê các quyền trên file, thư mục:
+cd /shared_data
+
+ls -l
+
+Chúng ta sẽ thấy các quyền trên file accounting.txt và 2 thư mục. Sinh viên kiểm tra xem “Alice” có thể xem nội dung file accounting.txt không. Thử thực hiện lệnh cat với file này.
+Nhìn lại vào danh sách quyền truy cập các file, thư mục. Lưu ý với file accounting.txt có cài đặt quyền là:
+-rw-rw----+
+
+Biểu tượng + ở cuối cho biết tệp này có thêm một acl ngoài các quyền UNIX tiêu chuẩn "rw" cho người dùng và nhóm người dùng. Ta có thể xem acl của file này sử dụng lệnh:
+         getfacl accounting.txt
+
+Hãy chú ý 1 trong 3 người dùng có quyền sửa đổi với file accounting.txt, sau đó hãy chuyển đến terminal của người dùng đó thực hiện lệnh:
+         echo "more stuff" >> /shared_data/accounting.txt
+
+Quay trở lại terminal “alice”, thực hiện lệnh sửa đổi file ở trên để xác nhận rằng “alice” không có quyền sửa đổi file này.
+Nhiệm vụ 2: Cài đặt ACL trên một file
+
+Với tư cách là người dùng Bob, hãy sử dụng lệnh setfacl để cho phép Alice đọc file /shared_data/bob/bobstuff.txt. 
+setfacl -m user:alice:r /shared_data/bob/bobstuff.txt
+
+Sau đó, với tư cách là người dùng Alice, hãy xác nhận khả năng đọc tệp này bằng lệnh cat. Đồng thời, với tư cách là người dùng Harry, hãy xác nhận rằng anh ta thiếu quyền đọc file này.
+
+Nhiệm vụ 3: Cài đặt ACL mặc định cho 1 thư mục
+
+Với tư cách là người dùng Alice, chúng ta muốn tạo một ACL mặc định sao cho bất cứ khi nào Alice tạo một file mới trong thưc mục /shared data/alice, file mới đó sẽ có thể được đọc bởi Bob, nhưng không phải bởi những người dùng khác ngoài Bob và Alice.
+
+Tạo một file trong /shared_data/alice và kiểm tra quyền của nó.
+Đặt acl mặc định trên thư mục Alice để cho phép Bob đọc các file mới được tạo.
+           setfacl -d -m user:bob:r /shared_data/alice
+
+Tạo một file mới khác trong /shared_data/alice và kiểm tra quyền của nó. Chúng có phải là những gì chúng ta chờ đợi?
+Sửa lại acl mặc định của sinh viên trên thư mục Alice nếu cần.
+Xác nhận các quyền trên tệp mới tạo như mong muốn.
+Nhiệm vụ 4: Trojan Horses
+
+Xem lại các quyền trên tệp /shared_data/accounting.txt. Bob không thể đọc tệp này, nhưng anh ấy rất muốn biết nội dung của nó. Bob biết Alice không biết về ascii art nên anh ấy đã tạo ra một script /shared data/bob/fun. Với tư cách là Bob, hãy sửa đổi tập lệnh đó để nếu Alice (hoặc Harry) chạy tập lệnh đó, nó sẽ tạo một bản sao của tệp accounting.txt theo cách cho phép Bob xem nội dung. Xác nhận rằng khi Bob chạy tập lệnh này, nó không cung cấp cho anh ta quyền truy cập vào dữ liệu. Nhưng khi nó được chạy bởi Alice, thì Bob được quyền truy cập vào thông tin. Lưu ý sự khác biệt giữa việc Bob nhận được quyền truy cập vào tệp và Bob nhận được quyền truy cập thông tin.
+
+Kết thúc bài lab:
+
+Trên terminal đầu tiên sử dụng câu lênh sau để kết thúc bài lab:
+stoplab acl
+
+Khi bài lab kết thúc, một tệp zip lưu kết quả được tạo và lưu vào một vị trí được hiển thị bên dưới stoplab.
+Khởi động lại bài lab:
+
+Trong quá trình làm bài sinh viên cần thực hiện lại bài lab, dùng câu lệnh:
+
+labtainer –r acl
